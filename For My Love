@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forလေားရှည်မ</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #fff0f5;
+            font-family: sans-serif;
+            margin: 0;
+            overflow: hidden; /* ခလုတ်ကြီးလာရင် screen ပုံပျက်မသွားအောင် ထိန်းထားတာပါ */
+        }
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 85%;
+            max-width: 300px;
+            position: relative;
+        }
+        img {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #db2777;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            min-height: 60px;
+        }
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: transform 0.2s ease;
+        }
+        #yes {
+            background-color: #ec4899;
+            color: white;
+        }
+        #no {
+            background-color: #9ca3af;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <img id="img" src="https://media.tenor.com/efMhK75UuEwAAAAj/tkthao219-bubududu.gif" alt="Cute">
+        <h2 id="text">ချစ်သေးလားဟင်🥹</h2>
+        
+        <div class="btn-group" id="btnGroup">
+            <button id="yes" onclick="showLove()">Yes</button>
+            <button id="no" onmouseover="moveNo(event)" ontouchstart="moveNo(event)">No</button>
+        </div>
+    </div>
+
+    <script>
+        let yesScale = 1;
+        let noScale = 1;
+
+        function showLove() {
+            document.getElementById('img').src = "https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-hug.gif";
+            document.getElementById('text').innerText = "ကိုလည်း ချစ်ပါတယ်နော်💘";
+            document.getElementById('btnGroup').style.display = 'none';
+        }
+
+        function moveNo(event) {
+            // ဖုန်းမှာ touch လုပ်ရင် page ကြီး လိုက်မရွေ့အောင် တားတာပါ
+            if(event && event.type === 'touchstart') {
+                event.preventDefault();
+            }
+
+            const noBtn = document.getElementById('no');
+            const yesBtn = document.getElementById('yes');
+            
+            // ၁။ No ခလုတ်ကို random နေရာရွှေ့မယ်
+            const x = Math.random() * (window.innerWidth - 100);
+            const y = Math.random() * (window.innerHeight - 50);
+            
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+
+            // ၂။ Yes ခလုတ်ကို ကြီးလာစေမယ် (Scale သုံးထားလို့ စာသားတွေနဲ့ သွားမထပ်တော့ပါဘူး)
+            yesScale += 0.3;
+            yesBtn.style.transform = `scale(${yesScale})`;
+
+            // ၃။ No ခလုတ်ကို သေးသွားစေမယ်
+            noScale -= 0.15;
+            if (noScale <= 0.2) {
+                noBtn.style.display = 'none'; // လုံးဝသေးသွားရင် ဖျောက်လိုက်မယ်
+            } else {
+                noBtn.style.transform = `scale(${noScale})`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,159 +1,174 @@
+```html
 <!DOCTYPE html>
-<html lang="my">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forလေားရှည်မ</title>
+    <title>Heart Particle Animation</title>
     <style>
         body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #050505; /* Deep black background */
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #fff0f5;
+            color: white;
             font-family: sans-serif;
-            margin: 0;
         }
-        .card {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            text-align: center;
-            width: 85%;
-            max-width: 300px;
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
-        img {
-            width: 150px;
-            margin-bottom: 20px;
+        /* Hidden SVG path used purely for calculations */
+        svg {
+            display: none;
         }
-        h2 {
-            color: #db2777;
-            margin-bottom: 20px;
-        }
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            align-items: center; /* ကြီးလာတဲ့အခါ အလယ်မှာ ညီနေအောင် ထည့်ပေးထားပါတယ် */
-            gap: 15px;
-        }
-        button {
-            padding: 10px 25px;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            transition: 0.2s; /* ကြီးလာတဲ့အခါ ညင်ညင်သာသာလေး ကြီးလာအောင်ပါ */
-        }
-        #yes { background-color: #ec4899; color: white; }
-        #no { background-color: #9ca3af; color: white; }
     </style>
 </head>
 <body>
 
-    <div class="card" id="card">
-        <img id="img" src="https://media.tenor.com/efMhK75UuEwAAAAj/tkthao219-bubududu.gif" alt="Cute">
-        <h2 id="text">ချစ်သေးလားဟင်🥹</h2>
-        
-        <div class="btn-group" id="btnGroup">
-            <button id="yes" onclick="showLove()">Yes</button>
-            <button id="no" onmouseover="moveNo()" ontouchstart="moveNo()">No</button>
-        </div>
-    </div>
+    <!-- The SVG Path representing the heart shape -->
+    <!-- ViewBox roughly matches the 600x552 coordinate space in the code snippet -->
+    <svg viewBox="0 0 600 552">
+        <path id="heartPath" d="M 300, 150 
+                 C 300, 150  250, 50   150, 50 
+                 C  50, 50    50, 200   50, 200 
+                 C  50, 300  300, 500  300, 500 
+                 C 300, 500  550, 300  550, 200 
+                 C 550, 200  550, 50   450, 50 
+                 C 350, 50   300, 150  300, 150 Z"></path>
+    </svg>
+
+    <div id="canvas-container"></div>
+
+    <!-- Import Three.js and GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- OrbitControls for interactivity -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
     <script>
-        // အကြီးအသေး မှတ်ထားမယ့် ကိန်းဂဏန်းများကို အပေါ်ဆုံးမှာ ကြေညာရပါမယ်
-        let yesSize = 16;
-        let noSize = 16;
-
-        function showLove() {
-            document.getElementById('img').src = "https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-hug.gif";
-            document.getElementById('text').innerText = "ကိုလည်း ချစ်ပါတယ်နော်💘";
-            document.getElementById('btnGroup').style.display = 'none';
-        }
-
-        function moveNo() {
-            const noBtn = document.getElementById('no');
-            const yesBtn = document.getElementById('yes');
+        window.onload = function() {
+            // --- Three.js Scene Setup ---
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
             
-            // ၁။ ခလုတ်ကို window ရဲ့ random နေရာကို ရွှေ့ပေးခြင်း
-            const x = Math.random() * (window.innerWidth - 80);
-            const y = Math.random() * (window.innerHeight - 50);
+            // Set up camera
+            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
             
-            noBtn.style.position = 'fixed';
-            noBtn.style.left = x + 'px';
-            noBtn.style.top = y + 'px';
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
 
-            // ၂။ Yes ခလုတ် ကြီးလာစေခြင်း
-            yesSize += 10;
-            yesBtn.style.fontSize = yesSize + 'px';
-            yesBtn.style.padding = (yesSize/2) + 'px ' + yesSize + 'px';
+            // Add OrbitControls to let the user pan/rotate around the heart
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
 
-            // ၃။ No ခလုတ် သေးသွားစေခြင်း
-            noSize -= 2;
-            if(noSize < 5) {
-                noBtn.style.display = 'none'; // အရမ်းသေးသွားရင် ပျောက်သွားမယ်
-            } else {
-                noBtn.style.fontSize = noSize + 'px';
-                noBtn.style.padding = (noSize/2) + 'px ' + noSize + 'px'; // No ကိုပါ Padding သေးသွားအောင် ချိန်ပေးထားပါတယ်
+            // --- The Core Logic from the Screenshot ---
+            const path = document.querySelector("path");
+            const length = path.getTotalLength();
+            const vertices = [];
+            
+            // Initialize GSAP Timeline
+            const tl = gsap.timeline();
+
+            for (let i = 0; i < length; i += 0.1) {
+                // Get point on the SVG path
+                const point = path.getPointAtLength(i);
+                
+                // Create a 3D vector. Note: -point.y is used to flip the SVG coordinates right-side up.
+                const vector = new THREE.Vector3(point.x, -point.y, 0);
+                
+                // Add random scattering (noise) to make it look like a glowing cluster
+                vector.x += (Math.random() - 0.5) * 30;
+                vector.y += (Math.random() - 0.5) * 30;
+                vector.z += (Math.random() - 0.5) * 70;
+                
+                vertices.push(vector);
+                
+                // Animate particles FROM the center TO their target path positions
+                tl.from(vector, {
+                    x: 600 / 2,
+                    y: -552 / 2,
+                    z: 0,
+                    ease: "power2.inOut",
+                    duration: "random(2, 5)" // GSAP evaluates this randomly per particle
+                }, i * 0.002);
             }
-        }
+
+            // --- Geometry and Materials ---
+            // Create a custom circular gradient texture for soft glowing particles
+            const canvas = document.createElement('canvas');
+            canvas.width = 16;
+            canvas.height = 16;
+            const context = canvas.getContext('2d');
+            const gradient = context.createRadialGradient(8, 8, 0, 8, 8, 8);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, 16, 16);
+            const particleTexture = new THREE.CanvasTexture(canvas);
+
+            // Initialize buffer geometry with the vectors
+            const geometry = new THREE.BufferGeometry().setFromPoints(vertices);
+            
+            const material = new THREE.PointsMaterial({
+                color: 0xff3399, // Vibrant pink
+                size: 3,
+                map: particleTexture,
+                blending: THREE.AdditiveBlending, // Makes overlapping particles glow
+                transparent: true,
+                depthWrite: false, // Prevents depth sorting issues with transparent objects
+                opacity: 0.8
+            });
+
+            const particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            // Center the camera on the heart based on the coordinates in the code (600/2, -552/2)
+            const centerX = 600 / 2;
+            const centerY = -552 / 2;
+            controls.target.set(centerX, centerY, 0);
+            camera.position.set(centerX, centerY, 700);
+
+            // --- Animation Loop ---
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                // Because GSAP is animating the raw `THREE.Vector3` objects in the `vertices` array,
+                // we must manually copy their updated X, Y, Z values back into the geometry buffer every frame.
+                const positions = geometry.attributes.position.array;
+                for (let i = 0; i < vertices.length; i++) {
+                    positions[i * 3] = vertices[i].x;
+                    positions[i * 3 + 1] = vertices[i].y;
+                    positions[i * 3 + 2] = vertices[i].z;
+                }
+                geometry.attributes.position.needsUpdate = true; // Tell Three.js to re-render the changes
+
+                controls.update(); // Update camera damping
+                renderer.render(scene, camera);
+            }
+
+            // Start rendering
+            animate();
+
+            // Handle window resizing
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        };
     </script>
 </body>
 </html>
-</head>
-<body>
 
-    <div class="card">
-        <img id="img" src="https://media.tenor.com/efMhK75UuEwAAAAj/tkthao219-bubududu.gif" alt="Cute">
-        <h2 id="text">ချစ်သေးလားဟင်🥹</h2>
-        
-        <div class="btn-group" id="btnGroup">
-            <button id="yes" onclick="showLove()">Yes</button>
-            <button id="no" onmouseover="moveNo(event)" ontouchstart="moveNo(event)">No</button>
-        </div>
-    </div>
-
-    <script>
-        let yesScale = 1;
-        let noScale = 1;
-
-        function showLove() {
-            document.getElementById('img').src = "https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-hug.gif";
-            document.getElementById('text').innerText = "ကိုလည်း ချစ်ပါတယ်နော်💘";
-            document.getElementById('btnGroup').style.display = 'none';
-        }
-
-        function moveNo(event) {
-            // ဖုန်းမှာ touch လုပ်ရင် page ကြီး လိုက်မရွေ့အောင် တားတာပါ
-            if(event && event.type === 'touchstart') {
-                event.preventDefault();
-            }
-
-            const noBtn = document.getElementById('no');
-            const yesBtn = document.getElementById('yes');
-            
-            // ၁။ No ခလုတ်ကို random နေရာရွှေ့မယ်
-            const x = Math.random() * (window.innerWidth - 100);
-            const y = Math.random() * (window.innerHeight - 50);
-            
-            noBtn.style.position = 'fixed';
-            noBtn.style.left = x + 'px';
-            noBtn.style.top = y + 'px';
-
-            // ၂။ Yes ခလုတ်ကို ကြီးလာစေမယ် (Scale သုံးထားလို့ စာသားတွေနဲ့ သွားမထပ်တော့ပါဘူး)
-            yesScale += 0.3;
-            yesBtn.style.transform = `scale(${yesScale})`;
-
-            // ၃။ No ခလုတ်ကို သေးသွားစေမယ်
-            noScale -= 0.15;
-            if (noScale <= 0.2) {
-                noBtn.style.display = 'none'; // လုံးဝသေးသွားရင် ဖျောက်လိုက်မယ်
-            } else {
-                noBtn.style.transform = `scale(${noScale})`;
-            }
-        }
-    </script>
-</body>
-</html>
+```

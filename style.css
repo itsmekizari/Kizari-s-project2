@@ -1,86 +1,98 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-body{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    background:#f8f8f8;
-    font-family:Arial,sans-serif;
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #ffe6eb; /* Soft pink background like the video */
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
 }
 
-.card{
-    width:360px;
-    height:420px;
-    background:#fff;
-    border-radius:20px;
-    box-shadow:0 10px 30px rgba(0,0,0,.15);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:20px;
+.card {
+    width: 380px;
+    height: 450px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
 }
 
-svg{
-    width:100%;
-    height:100%;
+.character {
+    position: absolute;
+    left: 20px;
+    top: 120px;
+    font-size: 60px;
+    z-index: 10;
 }
 
-#heart,
-#body,
-#head{
-    fill:none;
-    stroke:#000;
-    stroke-width:4;
-    stroke-linecap:round;
-    stroke-linejoin:round;
-
-    stroke-dasharray:1000;
-    stroke-dashoffset:1000;
-
-    animation:draw 5s linear forwards;
+#heart-grid {
+    position: absolute;
+    top: 60px;
+    right: 30px;
+    width: 180px;
+    height: 180px;
+    transition: opacity 1s ease;
 }
 
-#head{
-    animation-delay:.3s;
+.small-heart {
+    position: absolute;
+    color: #ff3b6a;
+    font-size: 18px;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-#body{
-    animation-delay:.8s;
+#cake-container {
+    position: absolute;
+    top: 60px;
+    right: 40px;
+    width: 150px;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+    z-index: 5;
 }
 
-#heart{
-    stroke:#ff3b6a;
-    animation-delay:1.5s;
+#cake-container img {
+    width: 100%;
 }
 
-#loveText{
-    font-size:28px;
-    text-anchor:middle;
-    fill:#ff3b6a;
-    font-weight:bold;
-    opacity:0;
-    animation:showText 1s ease forwards;
-    animation-delay:5s;
+#greeting-text {
+    position: absolute;
+    bottom: 80px;
+    color: #ff3b6a;
+    font-size: 24px;
+    opacity: 0;
+    transition: opacity 1.5s ease;
 }
 
-@keyframes draw{
-    to{
-        stroke-dashoffset:0;
+/* Floating hearts particle effect */
+.floating-heart {
+    position: absolute;
+    color: #ff3b6a;
+    font-size: 20px;
+    opacity: 0.8;
+    animation: floatUp 3s linear forwards;
+    z-index: 20;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.8;
     }
-}
-
-@keyframes showText{
-    from{
-        opacity:0;
-        transform:translateY(15px);
-    }
-    to{
-        opacity:1;
-        transform:translateY(0);
+    100% {
+        transform: translateY(-250px) scale(1.5);
+        opacity: 0;
     }
 }
